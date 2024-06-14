@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue.js 3</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- font awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Item List -->
+      <div class="flex flex-wrap rounded-sm shadow-sm w-3/4 mx-auto mt-10">
+        <!-- title-->
+        <div
+          class="bg-red-500 p-4 font-bold text-white rounded-tr-sm rounded-tl-sm text-lg w-full text-center cursor-default"
+        >
+          <p>{{ items['title'] }}</p>
+        </div>
+
+        <!-- item -->
+        <div
+          class="flex items-center gap-2 bg-slate-100 w-full p-4 active:scale-105 active:rounded-sm cursor-pointer border-b-2"
+          v-for="(value, key) in items['items']"
+          :class="{ hidden : value=='' }"
+          >
+          <span class="fa fa-house"></span>
+          <p>{{ value }}</p>
+        </div>
+        <!-- like -->
+        <div
+          class="flex items-center justify-center gap-2 bg-slate-100 w-full p-4 active:scale-105 active:rounded-sm cursor-pointer border-b-2"
+          @click="likes++"
+        >
+          <p>{{ likes }}</p>
+          <p v-html="checkHeart"></p>
+        </div>
+      </div>
+
+      <!-- editor box -->
+      <div
+        class="flex flex-wrap gap-2 justify-center w-3/4 mt-10 mx-auto p-4 rounded-sm shadow-md"
+      >
+        <!-- input item one -->
+        <form action="" class="flex" v-for="(item, key) in items['items'] ">
+          <!---->
+          <input
+            type="text"
+            v-model="items['items'][key]"
+            :ref="'items_items_'+key"
+            class="border-l-2 w-3/4 border-b-2 border-t-2 ring-0 focus:outline-none rounded-l-sm p-2"
+            :placeholder="key"
+          />
+          <button
+            type="reset"
+            class="bg-red-500 group rounded-r-sm py-2 px-4 text-white hover:scale-105 hover:rounded-sm"
+            @click="items['items'][key]=''"
+          >
+            <i
+              class="fas fa-history group-hover:-rotate-180"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="vue3.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
