@@ -1,18 +1,17 @@
 const unShowCaption = {
     '0%': {
         overflow: 'visible',
-        height: 'auto',
+        'height': '10rem',
  
     },
     '50%': {
-        height: '10rem',
+        'height': '9rem',
         overflow: 'hidden'
     },
     '99%': {
-        
     },
     '100%': {
-        height: '9rem',
+        'height': 'auto',
         overflow: 'hidden'
     }
 }

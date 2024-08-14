@@ -1,17 +1,20 @@
 <template>
     <div class="Home">
-        <Post></Post>
-        <Post></Post>
-        <Post></Post>
+        <Posts></Posts>
     </div>
 </template>
 
 <script>
-import Post from "@/components/Post/PostComponent.vue"
+import Posts from "@/components/Post/PostsComponent.vue"
 
 export default {
     name: "HomeView",
-    components: { Post }
+    components: { Posts },
+    data() {
+        return {
+        }
+    }
 }
+
 
 </script>

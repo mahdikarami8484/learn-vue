@@ -24,7 +24,7 @@
 export default {
   name: "InputComponent",
   props: ["name", "placeholder", "type", "modelValue"],
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'validInput'],
   data() {
     return {
       show: false,
@@ -38,8 +38,7 @@ export default {
         this.pass = this.show ? 'text' : 'password';
     },
     validInput(){
-        var el = this.$refs.input
-        this.$emit('validInput', [this.name, el])
+        this.$emit('validInput', this.name)
     }
   }
 };

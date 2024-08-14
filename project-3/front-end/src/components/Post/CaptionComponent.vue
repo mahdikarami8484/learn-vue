@@ -1,6 +1,6 @@
 <template>
-  <div class="text-white overflow-hidden flex gap-0 justify-start" >
-    <p class="px-3" :class="showCaption ? 'animate-show-caption' : 'animate-un-show-caption'">
+  <div class="text-white mt-2 overflow-hidden flex gap-0 justify-start" >
+    <p class="px-3 pb-3" :class="showCaption ? 'animate-show-caption max-h-max' : 'animate-un-show-caption'">
       <slot></slot>
     </p>
   </div>

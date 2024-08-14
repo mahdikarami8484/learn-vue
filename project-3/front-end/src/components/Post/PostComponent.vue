@@ -1,25 +1,17 @@
 <template>
-  <div class="bg-color-3 w-10/12 m-auto mt-14 mb-14 rounded-sm relative">
+  <div class="bg-color-3 w-96 m-auto mt-14 mb-14 rounded-sm relative">
     <Picture @dblclick="showBigLike" :pictureData="pictureData">
       <BigLike :class="bigLike ? '!animate-big-like' : 'hidden'" />
     </Picture>
 
     <div class="pt-2 pl-2 flex gap-5 text-2xl font-bold">
-      <LikeButton :like="like" :isLike="isLike" @likeHandler="likeHandler" />
-      <ViewButton :viewed="viewed" :view="view" />
+      <LikeButton :like="likes" :isLike="is_liked" @likeHandler="likeHandler" />
+      <ViewButton :viewed="is_viewed" :view="views" />
     </div>
     <Caption :showCaption="showCaption">
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      Lorem Ipsum has been the industry's standard dummy text ever since the
-      1500s, when an unknown printer took a galley of type and scrambled it to
-      make a type specimen book. It has survived not only five centuries, but
-      also the leap into electronic typesetting, remaining essentially
-      unchanged. It was popularised in the 1960s with the release of Letraset
-      sheets containing Lorem Ipsum passages, and more recently with desktop
-      publishing software like Aldus PageMaker including versions of Lorem
-      Ipsum.
+      {{ showText }}
     </Caption>
-    <ContinueButton @click="showCaptionFun" :continued="showCaption" />
+    <ContinueButton v-if="text.length > 276" @click="showCaptionFun" :continued="showCaption" />
   </div>
 </template>
 
@@ -45,46 +37,51 @@ export default {
   data() {
     return {
       showCaption: false,
-      viewed: false,
-      view: 100,
+      is_viewed: this.init_is_viewed,
+      views: this.init_views,
       bigLike: false,
-      like: 10,
-      isLike: false,
-      pictureData: {
-        name: "image",
-        format: "jpg",
-        address:
-          "https://static.vecteezy.com/system/resources/thumbnails/009/398/082/small_2x/tree-growth-on-globe-glass-in-nature-concept-eco-earth-day-free-photo.jpg",
-        alt: "nature pic",
-      },
+      likes: this.init_likes,
+      is_liked: this.is_liked,
     };
   },
-  props: [
-  ],
+  props: ['pictureData', 'text', 'init_likes', 'init_views', 'init_is_liked', 'init_is_viewed'],
   methods: {
     showCaptionFun() {
-      if (!this.viewed) this.view++;
-      this.viewed = true;
+      if (!this.is_viewed) this.views++;
+      this.is_viewed = true;
       this.showCaption = !this.showCaption;
     },
     showBigLike() {
       this.bigLike = true;
-      if (!this.isLike) {
-        this.like++;
-        this.isLike = true;
+      if (!this.is_liked) {
+        this.likes++;
+        this.is_liked = true;
       }
       setTimeout(() => {
         this.bigLike = false;
       }, 501);
     },
     likeHandler() {
-      if (!this.isLike) {
+      if (!this.is_liked) {
         this.showBigLike();
       } else {
-        this.like--;
-        this.isLike = false;
+        this.likes--;
+        this.is_liked = false;
       }
     },
   },
+  computed: {
+    showText() {
+      if (this.text.length <= 276) {
+        if (!this.is_viewed) {
+          this.views++;
+          this.is_viewed = true;
+        }
+        return this.text;
+      }
+      if (this.showCaption) return this.text;
+      return this.text.slice(0, 276);
+    }
+  }
 };
 </script>
