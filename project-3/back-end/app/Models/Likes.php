@@ -4,16 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Post extends Model
+class Likes extends Model
 {
-
-    use SoftDeletes;
-
     protected $fillable = [
-        'text',
-        'image_address',
+        'post_id'
     ];
 
     use HasFactory;

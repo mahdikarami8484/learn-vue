@@ -2,16 +2,57 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Likes;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Exception;
+use GuzzleHttp\Psr7\Response;
+use Illuminate\Database\Eloquent\Builder;
 
 class PostController extends Controller
 {
-    public function show()
+    public function showAll(Request $request)
     {
-        $posts = Post::orderBy('created_at', 'DESC')->get();
-        return Response()->json($posts, 200);
+        $count = data_get($request, 'count', 5);
+        try {
+            $posts = Post::orderBy('created_at', 'DESC')->paginate($perPage = $count, $columns = ['*'], $pageName = 'slot');
+            return Response()->json($posts->items(), 200);
+        } catch(Exception $e){
+            return Response()->json($e, 400);
+        }
+
+    }
+
+    public function search(Request $request)
+    {
+        $count = data_get($request, 'count', 5);
+        try{
+            if($request->q === null) return $this->showAll($request);
+            $posts = Post::query()->when($request->q, function(Builder $builder) use ($request){
+                $builder->where('text', 'like', "%{$request->q}%");
+            })->orderBy('created_at', 'DESC')->paginate($perPage = $count, $columns = ['*'], $pageName = 'slot');
+            return Response()->json($posts->items(), 200);
+        }catch(Exception $e){
+            return Response()->json($e, 400);
+        }
+    }
+
+    public function addLike($post_id)
+    {
+
+        $count = Post::where('id', $post_id)->count();
+
+        if($count <= 0)
+        {
+            return Response()->json("post $post_id not exist.", 401);
+        }
+
+        try{
+            Likes::create(['post_id' => $post_id]);
+            return Response()->json("like added to post $post_id", 200);
+        }catch(Exception $e){
+            return Response()->json($e, 400);
+        }
     }
 
     public function create(Request $request)

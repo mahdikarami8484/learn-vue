@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Likes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Models\Post;
 use Tests\TestCase;
+use Illuminate\Database\Eloquent\Builder;
 
 class PostTest extends TestCase
 {
@@ -83,7 +85,7 @@ class PostTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_delete_wiht_all_param(): void
+    public function test_delete_with_all_param(): void
     {
         $post = $this->get_rand_post();
 
@@ -119,13 +121,193 @@ class PostTest extends TestCase
 
 
     // show post tests
-    public function test_show_posts()
+    public function test_show_posts_without_param()
     {
         $response = $this->postJson('api/post/');
 
-        $posts = Post::orderBy('created_at', 'DESC')->get();
+        $count = 5;
+        $slot = 1;
+
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
         $response->assertStatus(200);
         $response->assertJson($posts->toArray());
+    }
+
+    public function test_show_posts_without_count()
+    {   
+        $max_slot = ((int) Post::count() / 5) + 1;
+
+        $slot = rand(1, $max_slot);
+
+        $response = $this->postJson('api/post/', [
+            'slot' => $slot,
+        ]);
+
+        $count = 5;
+
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    public function test_show_posts_without_slot()
+    {
+        $max_count = Post::count();
+
+        $count = rand(1, $max_count);
+        $slot = 1;
+
+        $response = $this->postJson('api/post/', [
+            'count' => $count,
+        ]);
+
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    public function test_show_posts_with_all_param(){
+        $max_slot = ((int) Post::count() / 5) + 1;
+        $max_count = Post::count();
+
+        $slot = rand(1, $max_slot);
+        $count = rand(1, $max_count);
+
+        $response = $this->postJson('api/post/', [
+            'count' => $count,
+            'slot' => $slot
+        ]);
+
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    // search post tests
+    public function test_search_post_without_param()
+    {
+        $response = $this->postJson('api/post/search');
+
+        $count = 5;
+        $slot = 1;
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    public function test_search_post_without_q_and_slot()
+    {
+        $max_count = Post::count();
+
+        $count = rand(1, $max_count);
+        $slot = 1;
+
+        $response = $this->postJson('api/post/search/', [
+            'count' => $count,
+        ]);
+
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    public function test_search_post_without_q_and_count()
+    {
+        $max_slot = ((int) Post::count() / 5) + 1;
+
+        $slot = rand(1, $max_slot);
+
+        $response = $this->postJson('api/post/search/', [
+            'slot' => $slot,
+        ]);
+
+        $count = 5;
+
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    public function test_search_post_without_q()
+    {
+        $max_slot = ((int) Post::count() / 5) + 1;
+        $max_count = Post::count();
+
+        $slot = rand(1, $max_slot);
+        $count = rand(1, $max_count);
+
+        $response = $this->postJson('api/post/search/', [
+            'count' => $count,
+            'slot' => $slot
+        ]);
+
+        $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    public function test_search_post_with_all_param_and()
+    {
+        $max_slot = ((int) Post::count() / 5) + 1;
+        $max_count = Post::count();
+
+        $slot = rand(1, $max_slot);
+        $count = rand(1, $max_count);
+
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $q = $characters[rand(0, strlen($characters) - 1)];
+
+        $response = $this->postJson('api/post/search/', [
+            'q' => $q,
+            'count' => $count,
+            'slot' => $slot
+        ]);
+
+        $posts = Post::query()->when($q, function(Builder $builder) use ($q){
+            $builder->where('text', 'like', "%{$q}%");
+        })->orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
+        $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
+    }
+
+    // post add like tests
+    public function test_post_add_like_without_post_id()
+    {
+        $response = $this->postJson("api/post//addLike/");
+        $response->assertStatus(404);
+    }
+
+    public function test_post_add_like_with_not_integer_post_id()
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-';
+        $post_id = $characters[rand(0, strlen($characters))];
+        $response = $this->postJson("api/post/{$post_id}/addLike");
+        $response->assertStatus(404);
+    }
+
+    public function test_post_add_like_with_not_exit_post_id()
+    {
+        $post_id = $this->create_rand_not_exit_id();
+
+        $response = $this->postJson("api/post/{$post_id}/addLike");
+
+        $response->assertStatus(401);
+    }
+
+    public function test_post_add_like_with_all_param()
+    {
+        $post_id = Post::take(10)->get()->random()->id;
+
+        $old_likes = Likes::where('post_id', $post_id)->count();
+
+        $response = $this->postJson("api/post/{$post_id}/addLike/");
+
+        $response->assertStatus(200);
+        
+        $new_likes = Likes::where('post_id', $post_id)->count();
+
+        $this->assertEquals($old_likes + 1, $new_likes, 'old like count + 1 not equal new like count');
+
     }
 
     // get data for tests 
@@ -137,7 +319,6 @@ class PostTest extends TestCase
     public function get_rand_trashed_post()
     {
         $trashed_posts = Post::onlyTrashed()->get();
-        echo $trashed_posts->count();
         return $trashed_posts->random();
     }
 
