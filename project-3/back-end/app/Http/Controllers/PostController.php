@@ -57,7 +57,7 @@ class PostController extends Controller
 
             if($status) return Response()->json("the post removed successfuly.", 200);
 
-            return Response()->json("removing the post failed!!", 401);
+            return Response()->json(["message" => "removing the post failed!!"], 401);
         } catch(Exception $e) {
             return Response()->json($e, 400);
         }

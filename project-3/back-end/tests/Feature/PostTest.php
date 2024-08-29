@@ -100,20 +100,17 @@ class PostTest extends TestCase
     {
         $trashed_post = $this->get_rand_trashed_post();
 
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-        ])->post('api/post/delete', [
+        $response = $this->postJson('api/post/delete', [
             'id' => $trashed_post->id
         ]);
-
+        
         $response->assertStatus(401);
+        $response->assertJson(["message" => "removing the post failed!!"]);
     }
 
     public function test_delete_not_exist_id()
     {
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-        ])->post('api/post/delete', [
+        $response = $this->postJson('api/post/delete', [
             'id' => $this->create_rand_not_exit_id()
         ]);
 
@@ -124,13 +121,11 @@ class PostTest extends TestCase
     // show post tests
     public function test_show_posts()
     {
-        $response = $this->withHeaders([
-            'Accept' => 'application/json'
-        ])->post('api/post/');
+        $response = $this->postJson('api/post/');
 
-        $posts = Post::orderBy('created_at', 'DESC');
-        $response->assertJson(Response()->json($posts, 200));
+        $posts = Post::orderBy('created_at', 'DESC')->get();
         $response->assertStatus(200);
+        $response->assertJson($posts->toArray());
     }
 
     // get data for tests 
@@ -141,7 +136,8 @@ class PostTest extends TestCase
 
     public function get_rand_trashed_post()
     {
-        $trashed_posts = Post::withTrashed()->get();
+        $trashed_posts = Post::onlyTrashed()->get();
+        echo $trashed_posts->count();
         return $trashed_posts->random();
     }
 
@@ -153,7 +149,7 @@ class PostTest extends TestCase
 
     public function create_rand_not_exit_id()
     {
-        $posts = $this->get_posts()->sortBy('id');;
+        $posts = $this->get_posts()->sortBy('id');
         return $posts->last()->id + 1;
     }
 }

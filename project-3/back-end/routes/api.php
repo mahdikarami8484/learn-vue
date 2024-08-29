@@ -32,3 +32,4 @@ Route::prefix('post')->group(function(){
     Route::post('/delete', [PostController::class, 'delete']);
 });
 
+
