@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Helpers\ResponseHelper;
 use App\Models\Likes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -62,17 +63,23 @@ class PostTest extends TestCase
 
     public function test_update_with_all_param(): void
     {
-        $post = $this->get_rand_post();
+        $post = Post::take(10)->get()->random();
+        $post_id = $post->id;
 
         $response = $this->withHeaders([
             'Accept' => 'application/json'
         ])->post('api/post/update', [
-            'id' => $post->id,
+            'id' => $post_id,
             'text' => 'Hello World!',
             'image_address' => 'hello.png'
         ]);
 
+        $post = Post::where('id', $post_id)->get()[0];
+
         $response->assertStatus(200);
+        $test_response = new ResponseHelper("Post ID $post_id has been successfully updated.", 200, false, $post->toArray());
+       
+        $response->assertJson($test_response->get());
     }
 
     // delete tests 
@@ -96,6 +103,9 @@ class PostTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+
+        $test_response = new ResponseHelper("Post ID $post->id has been deleted successfully.", 200, false);
+        $response->assertJson($test_response->get());
     }
 
     public function test_delete_deleted_id(): void
@@ -107,21 +117,27 @@ class PostTest extends TestCase
         ]);
         
         $response->assertStatus(401);
-        $response->assertJson(["message" => "removing the post failed!!"]);
+
+        $test_response = new ResponseHelper("Removing post $trashed_post->id failed!", 401);
+        $response->assertJson($test_response->get());
     }
 
     public function test_delete_not_exist_id()
     {
+        $id = $this->create_rand_not_exit_id();
         $response = $this->postJson('api/post/delete', [
-            'id' => $this->create_rand_not_exit_id()
+            'id' => $id
         ]);
 
         $response->assertStatus(401);
+
+        $test_response = new ResponseHelper("Removing post $id failed!", 401);
+        $response->assertJson($test_response->get());
     }
 
 
-    // show post tests
-    public function test_show_posts_without_param()
+    // show_all post tests
+    public function test_show_all_posts_without_param()
     {
         $response = $this->postJson('api/post/');
 
@@ -130,10 +146,13 @@ class PostTest extends TestCase
 
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
+
     }
 
-    public function test_show_posts_without_count()
+    public function test_show_all_posts_without_count()
     {   
         $max_slot = ((int) Post::count() / 5) + 1;
 
@@ -146,11 +165,13 @@ class PostTest extends TestCase
         $count = 5;
 
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
+
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
     }
 
-    public function test_show_posts_without_slot()
+    public function test_show_all_posts_without_slot()
     {
         $max_count = Post::count();
 
@@ -162,11 +183,13 @@ class PostTest extends TestCase
         ]);
 
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
+
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
     }
 
-    public function test_show_posts_with_all_param(){
+    public function test_show_all_posts_with_all_param(){
         $max_slot = ((int) Post::count() / 5) + 1;
         $max_count = Post::count();
 
@@ -180,7 +203,39 @@ class PostTest extends TestCase
 
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
+    }
+
+    // show post test
+    public function test_show_post_with_not_integer_post_id()
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $post_id = $characters[rand(0, strlen($characters) - 1)];
+
+        $response = $this->postJson("api/post/{$post_id}");
+        $response->assertStatus(404);
+    }
+
+    public function test_show_post_with_not_exit_post_id()
+    {
+        $post_id = $this->create_rand_not_exit_id();
+        $response = $this->postJson("api/post/{$post_id}");
+        $response->assertStatus(404);
+        $test_response = new ResponseHelper("Post ID is not exist.", 404);
+        $response->assertJson($test_response->get());
+    }
+
+    public function test_show_post_with_all_param()
+    {
+        $post = Post::take(10)->get()->random();
+        $post_id = $post->id;
+
+        $response = $this->postJson("api/post/{$post_id}");
+        $response->assertStatus(200);
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $post->toArray());
+        $response->assertJson($test_response->get());
     }
 
     // search post tests
@@ -192,7 +247,8 @@ class PostTest extends TestCase
         $slot = 1;
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
     }
 
     public function test_search_post_without_q_and_slot()
@@ -208,7 +264,8 @@ class PostTest extends TestCase
 
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
     }
 
     public function test_search_post_without_q_and_count()
@@ -225,7 +282,8 @@ class PostTest extends TestCase
 
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1)*$count)->take($count)->get();
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
     }
 
     public function test_search_post_without_q()
@@ -242,8 +300,10 @@ class PostTest extends TestCase
         ]);
 
         $posts = Post::orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
+        
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
     }
 
     public function test_search_post_with_all_param_and()
@@ -266,22 +326,26 @@ class PostTest extends TestCase
         $posts = Post::query()->when($q, function(Builder $builder) use ($q){
             $builder->where('text', 'like', "%{$q}%");
         })->orderBy('created_at', 'DESC')->skip(($slot - 1) * $count)->take($count)->get();
+        
         $response->assertStatus(200);
-        $response->assertJson($posts->toArray());
+        $test_response = new ResponseHelper("The request was made successfully.", 200, false, $posts->toArray());
+        $response->assertJson($test_response->get());
     }
 
     // post add like tests
     public function test_post_add_like_without_post_id()
     {
         $response = $this->postJson("api/post//addLike/");
+
         $response->assertStatus(404);
     }
 
     public function test_post_add_like_with_not_integer_post_id()
     {
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-';
-        $post_id = $characters[rand(0, strlen($characters))];
+        $post_id = $characters[rand(0, strlen($characters)-1)];
         $response = $this->postJson("api/post/{$post_id}/addLike");
+
         $response->assertStatus(404);
     }
 
@@ -291,7 +355,9 @@ class PostTest extends TestCase
 
         $response = $this->postJson("api/post/{$post_id}/addLike");
 
-        $response->assertStatus(401);
+        $response->assertStatus(404);
+        $test_response = new ResponseHelper("Post ID $post_id is not exist.", 404);
+        $response->assertJson($test_response->get());
     }
 
     public function test_post_add_like_with_all_param()
@@ -303,6 +369,10 @@ class PostTest extends TestCase
         $response = $this->postJson("api/post/{$post_id}/addLike/");
 
         $response->assertStatus(200);
+
+        $test_response = new ResponseHelper("Post ID $post_id was liked.", 200, false);
+        
+        $response->assertJson($test_response->get());
         
         $new_likes = Likes::where('post_id', $post_id)->count();
 

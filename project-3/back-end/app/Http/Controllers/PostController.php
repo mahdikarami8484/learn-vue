@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
 use App\Models\Likes;
 use Illuminate\Http\Request;
 use App\Models\Post;
@@ -16,11 +17,35 @@ class PostController extends Controller
         $count = data_get($request, 'count', 5);
         try {
             $posts = Post::orderBy('created_at', 'DESC')->paginate($perPage = $count, $columns = ['*'], $pageName = 'slot');
-            return Response()->json($posts->items(), 200);
+            
+            $response = new ResponseHelper("The request was made successfully.", 200, false, $posts->items());
+            return $response->send();
         } catch(Exception $e){
-            return Response()->json($e, 400);
+            $response = new ResponseHelper("Error: ".$e->getMessage(), 400);
+            return $response->send();
         }
+    }
 
+    public function show($post_id)
+    {
+        try{
+            $post = Post::where('id', $post_id);
+            $count = $post->count();
+            if($count <= 0)
+            {
+                $response = new ResponseHelper("Post ID is not exist.", 404);
+                return $response->send();
+            }       
+
+            $post = $post->get();
+
+            $response = new ResponseHelper("The request was made successfully.", 200, false, $post[0]->toArray());
+            return $response->send();
+        }catch(Exception $e)
+        {
+            $response = new ResponseHelper("Error: ".$e->getMessage(), 400);
+            return $response->send();
+        }
     }
 
     public function search(Request $request)
@@ -31,27 +56,33 @@ class PostController extends Controller
             $posts = Post::query()->when($request->q, function(Builder $builder) use ($request){
                 $builder->where('text', 'like', "%{$request->q}%");
             })->orderBy('created_at', 'DESC')->paginate($perPage = $count, $columns = ['*'], $pageName = 'slot');
-            return Response()->json($posts->items(), 200);
+            
+            $response = new ResponseHelper("The request was made successfully.", 200, false, $posts->items());
+            return $response->send();
         }catch(Exception $e){
-            return Response()->json($e, 400);
+            $response = new ResponseHelper("Error: ".$e->getMessage(), 400);
+            return $response->send();
         }
     }
 
     public function addLike($post_id)
     {
-
         $count = Post::where('id', $post_id)->count();
 
         if($count <= 0)
         {
-            return Response()->json("post $post_id not exist.", 401);
+            $response = new ResponseHelper("Post ID $post_id is not exist.", 404);
+            return $response->send($response->get());
         }
 
         try{
             Likes::create(['post_id' => $post_id]);
-            return Response()->json("like added to post $post_id", 200);
+            $response = new ResponseHelper("Post ID $post_id was liked.", 200, false);
+            
+            return $response->send($response->get());
         }catch(Exception $e){
-            return Response()->json($e, 400);
+            $response = new ResponseHelper("Error: ".$e->getMessage(), 400);
+            return $response->send();
         }
     }
 
@@ -64,9 +95,12 @@ class PostController extends Controller
 
         try {
             $post = Post::create($inputs);
-            return Response()->json($post, 200);
+
+            $response = new ResponseHelper("The request was made successfully.", 200, false, $post->toArray());
+            return $response->send();
         } catch(Exception $e) {
-            return Response()->json($e, 400);
+            $response = new ResponseHelper("Error: ".$e->getMessage(), 400);
+            return $response->send();
         }
         
     }
@@ -79,11 +113,22 @@ class PostController extends Controller
         ]);
 
         try {
-            $post = Post::where(['id' => $request['id']])->update($inputs);
-            if($post) return Response()->json("the post updated successfuly.", 200);
-            return Response()->json("updating the post failed!!", 401);
+            $post = Post::where(['id' => $request->id]);
+            $status = $post->update($inputs);
+            
+            $post_id = $request->id;
+            $post = $post->get();
+            
+            if($status){
+                $response = new ResponseHelper("Post ID $post_id has been successfully updated.", 200, false, $post[0]->toArray());
+                return $response->send();
+            }
+
+            $response = new ResponseHelper("Updating post $post_id failed!", 401);
+            return $response->send();
         } catch(Exception $e) {
-            return Response()->json($e, 400);
+            $response = new ResponseHelper("Error: ".$e->getMessage(), 400);
+            return $response->send();
         }
     }
 
@@ -95,12 +140,18 @@ class PostController extends Controller
 
         try {
             $status = Post::where(['id' => $inputs['id']])->delete();
+            $post_id = $inputs['id'];
 
-            if($status) return Response()->json("the post removed successfuly.", 200);
+            if($status){
+                $response = new ResponseHelper("Post ID $post_id has been deleted successfully.", 200, false);
+                return $response->send();
+            }
 
-            return Response()->json(["message" => "removing the post failed!!"], 401);
+            $response = new ResponseHelper("Removing post $post_id failed!", 401);
+            return $response->send();
         } catch(Exception $e) {
-            return Response()->json($e, 400);
+            $response = new ResponseHelper("Error: ".$e->getMessage(), 400);
+            return $response->send();
         }
     }
 }

@@ -19,15 +19,17 @@ Route::prefix('user')->group(function(){
 
 // post api 
 Route::prefix('post')->group(function(){
-    // show posts
+    // show all posts
     Route::post('/', [PostController::class, 'showAll']);
+
+    // show post
+    Route::post('/{post_id}', [PostController::class, 'show']);
 
     // search post
     Route::post('/search', [PostController::class, 'search']);
 
     // like post
-    Route::post('/{post_id}/addLike', [PostController::class, 'addLike'])->where('post_id', '[0-9]+');
-
+    Route::post('/{post_id}/addLike', [PostController::class, 'addLike']);
 
     // create post
     Route::post('/create', [PostController::class, 'create']);
@@ -43,6 +45,9 @@ Route::prefix('post')->group(function(){
 Route::prefix('post')->group(function(){
     // show posts
     Route::get('/', [PostController::class, 'showAll']);
+
+    // show post
+    Route::get('/{post_id}', [PostController::class, 'show']);
 
     // search post
     Route::get('/search', [PostController::class, 'search']);
