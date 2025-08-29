@@ -1,2 +1,0 @@
-# learn-vue
-this project.
