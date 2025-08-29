@@ -37,10 +37,10 @@ jobs:
       # Project 3
       - name: Install & Build Project 3
         run: |
-          cd project-3
+          cd project-3/front-end
           npm install
           npm run build
-          cd ..
+          cd ../..
 
       - name: Collect builds
         run: |
