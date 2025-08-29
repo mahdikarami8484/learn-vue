@@ -33,7 +33,7 @@ jobs:
         run: |
           cd project-2
           npm install
-          npm run build
+          npm run build -- --base=/learn-vue/project2/
           cd ..
 
       # Project 3
@@ -41,7 +41,7 @@ jobs:
         run: |
           cd project-3/front-end
           npm install
-          npm run build
+          npm run build -- --base=/learn-vue/project3/
           cd ../..
 
       - name: Collect builds
