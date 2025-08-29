@@ -12,22 +12,139 @@ export default {
     components: { Post },
     data() {
         return {
-            posts: [
-                {
-                    pictureData: {
-                        name: "image",
-                        format: "jpg",
-                        address:
-                            "https://static.vecteezy.com/system/resources/thumbnails/009/398/082/small_2x/tree-growth-on-globe-glass-in-nature-concept-eco-earth-day-free-photo.jpg",
-                        alt: "nature pic",
-                    },
-                    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                    likes: 5,
-                    views: 10,
-                    is_liked: true,
-                    is_viewed: false
-                }
-            ]
+        posts: [
+            {
+                pictureData: {
+                    name: "image1",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1018/400/300",
+                    alt: "mountain view",
+                },
+                text: "Exploring the mountains gives a sense of freedom and peace that is hard to describe.",
+                likes: 12,
+                views: 45,
+                is_liked: true,
+                is_viewed: true
+            },
+            {
+                pictureData: {
+                    name: "image2",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1025/400/300",
+                    alt: "dog portrait",
+                },
+                text: "A faithful companion, always bringing joy and love to our lives.",
+                likes: 33,
+                views: 78,
+                is_liked: false,
+                is_viewed: true
+            },
+            {
+                pictureData: {
+                    name: "image3",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1039/400/300",
+                    alt: "city skyline",
+                },
+                text: "The city lights shine brighter at night, carrying endless stories in every window.",
+                likes: 8,
+                views: 20,
+                is_liked: false,
+                is_viewed: false
+            },
+            {
+                pictureData: {
+                    name: "image4",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1043/400/300",
+                    alt: "forest pathway",
+                },
+                text: "Walking in nature reminds us of the simple beauty that surrounds us every day.",
+                likes: 27,
+                views: 64,
+                is_liked: true,
+                is_viewed: true
+            },
+            {
+                pictureData: {
+                    name: "image5",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1059/400/300",
+                    alt: "desert dunes",
+                },
+                text: "Golden sands stretching endlessly, shaped by the winds of time.",
+                likes: 14,
+                views: 30,
+                is_liked: false,
+                is_viewed: true
+            },
+            {
+                pictureData: {
+                    name: "image6",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1069/400/300",
+                    alt: "lake reflection",
+                },
+                text: "A mirror of the sky, calm waters reflecting the clouds above.",
+                likes: 40,
+                views: 95,
+                is_liked: true,
+                is_viewed: true
+            },
+            {
+                pictureData: {
+                    name: "image7",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1074/400/300",
+                    alt: "snowy mountain",
+                },
+                text: "Snow peaks stand tall, a symbol of endurance and serenity.",
+                likes: 6,
+                views: 15,
+                is_liked: false,
+                is_viewed: false
+            },
+            {
+                pictureData: {
+                    name: "image8",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1084/400/300",
+                    alt: "sunset beach",
+                },
+                text: "Waves kiss the shore under a sky painted with sunset colors.",
+                likes: 51,
+                views: 120,
+                is_liked: true,
+                is_viewed: true
+            },
+            {
+                pictureData: {
+                    name: "image9",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/1081/400/300",
+                    alt: "field of flowers",
+                },
+                text: "Every flower blooms in its own time, together creating a colorful harmony.",
+                likes: 19,
+                views: 40,
+                is_liked: false,
+                is_viewed: true
+            },
+            {
+                pictureData: {
+                    name: "image10",
+                    format: "jpg",
+                    address: "https://picsum.photos/id/109/400/300",
+                    alt: "old bridge",
+                },
+                text: "An ancient bridge, carrying countless footsteps and untold stories.",
+                likes: 23,
+                views: 58,
+                is_liked: true,
+                is_viewed: false
+            }
+        ]
+
         }
     }
 }
