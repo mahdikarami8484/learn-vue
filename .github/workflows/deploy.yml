@@ -1,0 +1,56 @@
+name: Deploy Multiple Projects
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+      # Project 1
+      - name: Install & Build Project 1
+        run: |
+          cd project-1
+          npm install
+          npm run build
+          cd ..
+      
+      # Project 2
+      - name: Install & Build Project 2
+        run: |
+          cd project-2
+          npm install
+          npm run build
+          cd ..
+
+      # Project 3
+      - name: Install & Build Project 3
+        run: |
+          cd project-3
+          npm install
+          npm run build
+          cd ..
+
+      - name: Collect builds
+        run: |
+          mkdir gh-pages
+          cp -r project-1/ gh-pages/project1
+          cp -r project-2/dist gh-pages/project2
+          cp -r project-3/dist gh-pages/project3
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages
