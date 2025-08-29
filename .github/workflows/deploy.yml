@@ -47,7 +47,7 @@ jobs:
           mkdir gh-pages
           cp -r project-1/ gh-pages/project1
           cp -r project-2/dist gh-pages/project2
-          cp -r project-3/dist gh-pages/project3
+          cp -r project-3/front-end/dist gh-pages/project3
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
